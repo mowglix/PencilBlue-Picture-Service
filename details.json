@@ -1,0 +1,34 @@
+{
+    "uid": "PencilBlue-Picture-Service",
+    "name": "PencilBlue Picture Service",
+    "description": "Service for providing PencilBlue Media-Picture files in a resized from using a caching mechanism. For instance for providing fast loading thumbnails.",
+    "version": "0.1.0",
+    "pb_version": "0.4.x",
+    "author": {
+        "name": "Daniel Keller",
+        "email": "jobe451@gmail.org",
+        "website": "",
+        "contributors": [
+        ]
+    },
+    "settings": [{
+        "name": "Picture_Service_Cache_Path",
+        "value": "/tmp"
+    }],
+    "permissions": {
+        "ACCESS_USER": [],
+        "ACCESS_WRITER": [],
+        "ACCESS_EDITOR": [],
+        "ACCESS_MANAGING_EDITOR": []
+    },
+    "main_module": {
+        "path": "pictureService.js"
+    },
+    "theme": {
+        "settings": [],
+        "content_templates": []
+    },
+    "dependencies": {
+        "sharp": "0.12.0"
+    }
+}
