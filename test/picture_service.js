@@ -5,7 +5,7 @@ var rewire = require('rewire');
 var pbMockup = null;
 var PictureServiceModule, PictureService;
 
-PictureServiceModule = rewire("../../services/picture_service.js")(pbMockup);
+PictureServiceModule = rewire("..-..-services-picture_service.js")(pbMockup);
 pictureService = new PictureServiceModule();
 pictureService.init();
 
@@ -18,7 +18,8 @@ describe('Module check', function() {
 
 describe('Helpers', function() {
   describe('getPicDimensions', function () {
-    var getPicDimensions = myModule.__get__("getPicDimensions");
+    var getPicDimensions = PictureServiceModule.__get__("getPicDimensions");
+    var getCachePath = PictureServiceModule.__get__("getCachePath");
 
     it('should resize by height correctly', function () {
       var metadata = {width: 800, height: 600};
@@ -47,5 +48,42 @@ describe('Helpers', function() {
     });
 
   });
+
+  describe('getCachePath', function () {
+    it('should return correct pathname for no width and height', function () {
+      var mediaPath = "-media-2014-11-dlfkasdjfdsdf.jpg";
+      var expectedSize = {};
+      var pathPrefix = "/tmp/";
+      var cachePath = getCachePath(mediaPath, expectedSize, pathPrefix);
+
+      assert.equal(cachePath, "/tmp/media-2014-11-dlfkasdjfdsdf.jpg");
+    });
+    it('should return correct pathname for width', function () {
+      var mediaPath = "-media-2014-11-dlfkasdjfdsdf.jpg";
+      var expectedSize = {widht: 123};
+      var pathPrefix = "/tmp";
+      var cachePath = getCachePath(mediaPath, expectedSize, pathPrefix);
+
+      assert.equal(cachePath, "/tmp/media-2014-11-dlfkasdjfdsdf-w123.jpg");
+    });
+    it('should return correct pathname for height', function () {
+      var mediaPath = "-media-2014-11-dlfkasdjfdsdf.jpg";
+      var expectedSize = {height: 123};
+      var pathPrefix = "/tmp/";
+      var cachePath = getCachePath(mediaPath, expectedSize, pathPrefix);
+
+      assert.equal(cachePath, "/tmp/media-2014-11-dlfkasdjfdsdf-h123.jpg");
+    });
+    it('should return correct pathname for widht and height', function () {
+      var mediaPath = "-media-2014-11-dlfkasdjfdsdf.jpg";
+      var expectedSize = {width: 123, height: 456};
+      var pathPrefix = "/tmp";
+      var cachePath = getCachePath(mediaPath, expectedSize, pathPrefix);
+
+      assert.equal(cachePath, "/tmp/media-2014-11-dlfkasdjfdsdf-w123-h456.jpg");
+    });
+  });
+
+
 });
 
