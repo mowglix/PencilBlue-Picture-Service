@@ -4,6 +4,7 @@ TODO:
 - Take URL Prefix from settings
 - enable/disable
 - guard from resize attacks
+- add picture gallery
 
 */
 
@@ -22,6 +23,10 @@ module.exports = function PictureStreamModule(pb) {
     PictureStream.prototype.render = function(cb) {
         var self      = this;
 
+        if(util.isError(err)) {
+            return self.reqHandler.serveError(err); 
+        }
+        
         var mime = pb.RequestHandler.getMimeFromPath(this.req.url);
         if (mime) {
             this.res.setHeader('content-type', mime);
@@ -34,11 +39,20 @@ module.exports = function PictureStreamModule(pb) {
         var PictureService = pb.PluginService.getService('PictureService', 'PencilBlue-Picture-Service');
         var pictureService = new PictureService();
 
-        pictureService.getPictureStream(mediaPath, url_parts.query, function(err, stream){
+        //remove potential harmfull user-input
+        var expectedSize = {
+            width: url_parts.query.width,
+            height: url_parts.query.height
+        };
+
+        pictureService.getPictureStream(mediaPath, expectedSize, function(err, stream){
             if(err !== null)  {
                 self.reqHandler.serveError(err);
                 return;
             }
+            stream.once('error', function(err) {
+                pb.log.error("Picturestream failed: " + err.description);
+            });            
             stream.pipe(self.res);
         });
     };
