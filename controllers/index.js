@@ -1,26 +1,19 @@
+
 /*
-    Copyright (C) 2015  PencilBlue, LLC
+TODO: 
+- Take URL Prefix from settings
+- enable/disable
+- guard from resize attacks
 
-    This program is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
-
-    This program is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
 */
 
-module.exports = function PictureServiceModule(pb) {
+module.exports = function PictureStreamModule(pb) {
     
     //pb dependencies
     var util = pb.util;
     var sharp = require('sharp');
     var url = require('url');
+    var uid = require('uid');
 
     /* Constants */
     var URL_prefix = "/images/";
@@ -28,18 +21,18 @@ module.exports = function PictureServiceModule(pb) {
     /**
      * Media Content Controller is responsible for taking incoming requests for media and 
      * providing the right content for it or redirecting to where it should be.
-     * @class PictureService
+     * @class PictureStream
      * @constructor
      * @extends BaseController
      */
-    var PictureService = function () {};
-    util.inherits(PictureService, pb.BaseController);
+    var PictureStream = function () {};
+    util.inherits(PictureStream, pb.BaseController);
 
     /**
      * 
      *
      */
-    PictureService.prototype.render = function(cb) {
+    PictureStream.prototype.render = function(cb) {
         var self      = this;
 
         var getPicDimensions = function(metadata, demandedSize) {
@@ -69,6 +62,11 @@ module.exports = function PictureServiceModule(pb) {
                 };
             }
         };
+
+        var pluginService = new pb.PluginService();
+        pluginService.getSetting('Picture_Service_Cache_Path', 'PencilBlue-Picture-Service', function(err, settings) {
+            console.log(settings);
+        });
 
         var mime = pb.RequestHandler.getMimeFromPath(this.req.url);
         if (mime) {
@@ -102,6 +100,7 @@ module.exports = function PictureServiceModule(pb) {
 
             // TODO
             // https://github.com/lovell/sharp/issues/236 once implemented, should allow for something more elegant. Discussed in #314
+
             var pipeline = sharp();
             pipeline.metadata(function(err, metadata){
                 if(metadata.format !== 'jpeg' &&
@@ -127,10 +126,12 @@ module.exports = function PictureServiceModule(pb) {
                 }
             });
             mstream.pipe(pipeline);
+
+
         });
     };
 
-    PictureService.getRoutes = function(cb) {
+    PictureStream.getRoutes = function(cb) {
         var routes = [{
                 method: 'get',
                 path: URL_prefix + '*',
@@ -140,7 +141,7 @@ module.exports = function PictureServiceModule(pb) {
     };
 
     //exports
-    return PictureService;
+    return PictureStream;
 };
 
 
