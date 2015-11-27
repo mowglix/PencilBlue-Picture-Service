@@ -1,7 +1,8 @@
 
 
-var assert = require('assert');
+var assert = require('chai').assert;
 var rewire = require('rewire');
+var sinon = require('sinon');
 var pbMockup = null;
 var PictureServiceModule, PictureService;
 
@@ -10,9 +11,14 @@ pictureService = new PictureServiceModule();
 pictureService.init();
 
 
-describe('Module check', function() {
+describe('Service compliance check', function() {
   it('should have a name of "PictureService"', function () {
     assert.equal(pictureService.getName(), "PictureService");
+  });
+  it('should an init procedure that call the callback', function () {
+    var cb = sinon.spy();
+    pictureService.init(cb);
+    assert.isTrue(cb.called);
   });
 });
 
@@ -83,7 +89,24 @@ describe('Helpers', function() {
       assert.equal(cachePath, "/tmp/media-2014-11-dlfkasdjfdsdf-w123-h456.jpg");
     });
   });
-
-
 });
 
+/*
+  Probably helpful
+  https://github.com/mazira/base64-stream
+*/
+
+describe('PictureService', function() {
+  describe('getPictureStream', function () {
+    it('it should stream from DB for none cached files and cache the stream', function () {
+    });
+    it('it should stream from cache for cached files', function () {
+    });
+    it('it should fail on invalid filetypes', function () {
+    });
+    it('it should stream images in the requeted size', function () {
+    });
+    it('it should still work, even if the file was created in the meantime', function () {
+    });
+  });
+});
