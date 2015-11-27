@@ -2,12 +2,11 @@
 /*
 TODO: 
 - testing
+- restructure external interface
 - set picture quality
 - allow disabling caching
 - error handling
 - add error logging
-
-fs.rename(oldPath, newPath, callback)
 
 https://github.com/jhnns/rewire
 http://stackoverflow.com/questions/14874208/how-to-access-and-test-an-internal-non-exports-function-in-a-node-js-module
@@ -19,33 +18,6 @@ module.exports = function PictureServiceModule(pb) {
   var uid = require('uid');
   var sharp = require('sharp');
   var fs = require('fs');
-
-  var getPicDimensions = function(metadata, demandedSize) {
-      if(demandedSize.width === undefined && demandedSize.height === undefined) {
-          return {width: metadata.width, height: metadata.height};
-      } 
-      else if (demandedSize.height === undefined) {
-          demandedSize.width = parseInt(demandedSize.width);
-          return {width: Math.round(demandedSize.width), height: Math.round(metadata.height * demandedSize.width/metadata.width)};
-      }
-      else if (demandedSize.width === undefined) {
-          demandedSize.height = parseInt(demandedSize.height);
-          return {width: Math.round(metadata.width * demandedSize.height/metadata.height), height: Math.round(demandedSize.height)}; 
-      }
-      else {
-          demandedSize.height = Math.round(parseInt(demandedSize.height));
-          demandedSize.width  = Math.round(parseInt(demandedSize.width));
-          var cropWidth = (metadata.width - demandedSize.width)/2;
-          var cropHeight = (metadata.height - demandedSize.height)/2;
-          cropHeight = cropHeight < 0 ? 0 : cropHeight;
-          cropWidth = cropWidth < 0 ? 0 : cropWidth;
-          return {width: metadata.width - 2*cropWidth,
-              height: metadata.height - 2*cropHeight, 
-              top: cropHeight,
-              left: cropWidth
-          };
-      }
-  };
 
   var getPictureFromStorage = function(mediaPath, expectedSize, cachePath, settings, cb) {
     var mservice  = new pb.MediaService();
@@ -64,10 +36,6 @@ module.exports = function PictureServiceModule(pb) {
         cb(err, null);
         return;
       }
-
-      mstream.once('error', function(err) {
-        cb(err, null);
-      });
 
       // TODO
       // https://github.com/lovell/sharp/issues/236 once implemented, should allow for something more elegant. Discussed in #314
@@ -134,6 +102,33 @@ module.exports = function PictureServiceModule(pb) {
         mediaPathOut += '-h'+ Math.round(expectedSize.height);
     }
     return mediaPathOut;
+  };
+
+  var getPicDimensions = function(metadata, demandedSize) {
+      if(demandedSize.width === undefined && demandedSize.height === undefined) {
+          return {width: metadata.width, height: metadata.height};
+      } 
+      else if (demandedSize.height === undefined) {
+          demandedSize.width = parseInt(demandedSize.width);
+          return {width: Math.round(demandedSize.width), height: Math.round(metadata.height * demandedSize.width/metadata.width)};
+      }
+      else if (demandedSize.width === undefined) {
+          demandedSize.height = parseInt(demandedSize.height);
+          return {width: Math.round(metadata.width * demandedSize.height/metadata.height), height: Math.round(demandedSize.height)}; 
+      }
+      else {
+          demandedSize.height = Math.round(parseInt(demandedSize.height));
+          demandedSize.width  = Math.round(parseInt(demandedSize.width));
+          var cropWidth = (metadata.width - demandedSize.width)/2;
+          var cropHeight = (metadata.height - demandedSize.height)/2;
+          cropHeight = cropHeight < 0 ? 0 : cropHeight;
+          cropWidth = cropWidth < 0 ? 0 : cropWidth;
+          return {width: metadata.width - 2*cropWidth,
+              height: metadata.height - 2*cropHeight, 
+              top: cropHeight,
+              left: cropWidth
+          };
+      }
   };
 
 /* ****************************************************************
