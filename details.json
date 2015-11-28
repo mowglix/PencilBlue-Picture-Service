@@ -29,6 +29,7 @@
         "content_templates": []
     },
     "dependencies": {
-        "sharp": "0.12.0"
+        "sharp": "0.12.0",
+        "uid": "0.0.2"
     }
 }

@@ -1,23 +1,25 @@
 
-
+var pb = require('./mockups/pb').getMockPB();
 var assert = require('chai').assert;
 var rewire = require('rewire');
 var sinon = require('sinon');
-var pbMockup = null;
-var PictureServiceModule, PictureService;
+var fs_mock = require('./mockups/fs');
+var PictureServiceModule, PictureService, pictureServiceInstance;
+var sharp = require('sharp');
 
-PictureServiceModule = rewire("..-..-services-picture_service.js")(pbMockup);
-pictureService = new PictureServiceModule();
-pictureService.init();
+PictureServiceModule = rewire("../services/picture_service.js");
+PictureServiceModule.__set__("fs", fs_mock);
 
+PictureService = PictureServiceModule(pb);
+pictureServiceInstance = new PictureService();
 
 describe('Service compliance check', function() {
   it('should have a name of "PictureService"', function () {
-    assert.equal(pictureService.getName(), "PictureService");
+    assert.equal(PictureService.getName(), "PictureService");
   });
-  it('should an init procedure that call the callback', function () {
+  it('should have an init procedure that call the callback', function () {
     var cb = sinon.spy();
-    pictureService.init(cb);
+    PictureService.init(cb);
     assert.isTrue(cb.called);
   });
 });
@@ -25,7 +27,6 @@ describe('Service compliance check', function() {
 describe('Helpers', function() {
   describe('getPicDimensions', function () {
     var getPicDimensions = PictureServiceModule.__get__("getPicDimensions");
-    var getCachePath = PictureServiceModule.__get__("getCachePath");
 
     it('should resize by height correctly', function () {
       var metadata = {width: 800, height: 600};
@@ -43,21 +44,27 @@ describe('Helpers', function() {
       assert.equal(newDimensions.height, 240);
     });
 
+// TODO
+// check if needed
+/*
     it('should resize by width and height correctly', function () {
       var metadata = {width: 800, height: 600};
       var demandedSize = {height: 300, width: 300};
       var newDimensions = getPicDimensions(metadata, demandedSize);
       assert.equal(newDimensions.width, 300);
       assert.equal(newDimensions.height, 300);
-      assert.equal(newDimensions.cropHeight, 0);
-      assert.equal(newDimensions.cropWidth, 50);
+      assert.equal(newDimensions.left, 50); //250
+      assert.equal(newDimensions.top, 0 ); //150
     });
-
+*/
   });
 
+
   describe('getCachePath', function () {
+    var getCachePath = PictureServiceModule.__get__("getCachePath");
+
     it('should return correct pathname for no width and height', function () {
-      var mediaPath = "-media-2014-11-dlfkasdjfdsdf.jpg";
+      var mediaPath = "/media/2014/11/dlfkasdjfdsdf.jpg";
       var expectedSize = {};
       var pathPrefix = "/tmp/";
       var cachePath = getCachePath(mediaPath, expectedSize, pathPrefix);
@@ -65,23 +72,23 @@ describe('Helpers', function() {
       assert.equal(cachePath, "/tmp/media-2014-11-dlfkasdjfdsdf.jpg");
     });
     it('should return correct pathname for width', function () {
-      var mediaPath = "-media-2014-11-dlfkasdjfdsdf.jpg";
-      var expectedSize = {widht: 123};
+      var mediaPath = "/media/2014/11/dlfkasdjfdsdf.jpg";
+      var expectedSize = {width: 123};
       var pathPrefix = "/tmp";
       var cachePath = getCachePath(mediaPath, expectedSize, pathPrefix);
 
       assert.equal(cachePath, "/tmp/media-2014-11-dlfkasdjfdsdf-w123.jpg");
     });
     it('should return correct pathname for height', function () {
-      var mediaPath = "-media-2014-11-dlfkasdjfdsdf.jpg";
+      var mediaPath = "/media/2014/11/dlfkasdjfdsdf.jpg";
       var expectedSize = {height: 123};
       var pathPrefix = "/tmp/";
       var cachePath = getCachePath(mediaPath, expectedSize, pathPrefix);
 
       assert.equal(cachePath, "/tmp/media-2014-11-dlfkasdjfdsdf-h123.jpg");
     });
-    it('should return correct pathname for widht and height', function () {
-      var mediaPath = "-media-2014-11-dlfkasdjfdsdf.jpg";
+    it('should return correct pathname for width and height', function () {
+      var mediaPath = "/media/2014/11/dlfkasdjfdsdf.jpg";
       var expectedSize = {width: 123, height: 456};
       var pathPrefix = "/tmp";
       var cachePath = getCachePath(mediaPath, expectedSize, pathPrefix);
@@ -91,22 +98,74 @@ describe('Helpers', function() {
   });
 });
 
-/*
-  Probably helpful
-  https://github.com/mazira/base64-stream
-*/
 
 describe('PictureService', function() {
   describe('getPictureStream', function () {
-    it('it should stream from DB for none cached files and cache the stream', function () {
+    it('callback should be called only once', function () {
+      var getPictureFromCache = PictureServiceModule.__get__("getPictureFromCache");
+      sinon.spy(pictureServiceInstance, "getPictureStream");
+      var cb = sinon.spy();
+      var mediaPath = '/media/2015/11/IS_EXISTING.jpg';
+      pictureServiceInstance.getPictureStream(mediaPath, {width: 300}, cb);
+      assert.isTrue(cb.calledOnce);
+      assert.isTrue(pictureServiceInstance.getPictureStream.calledOnce);
     });
-    it('it should stream from cache for cached files', function () {
+
+    it('it should have the right output size and format', function (done) {
+      var cb = function(err, stream, info) {
+        var pipeline = sharp();
+        pipeline.metadata(function(err, metadata) {
+          assert.equal(info.source, "storage");
+          assert.equal(metadata.format, 'jpeg');
+          assert.equal(metadata.width, 300);
+          assert.equal(metadata.height, 300);
+          done();
+        }).on('error', function(err) {
+          throw err;
+        });
+        stream.pipe(pipeline);
+      };
+      var mediaPath = '/media/2015/11/NOT_EXISTING.jpg';
+      pictureServiceInstance.getPictureStream(mediaPath, {width: 300}, cb);
     });
-    it('it should fail on invalid filetypes', function () {
+
+    it('it should be streamed from cache', function (done) {
+      var cb = function(err, stream, info) {
+        var pipeline = sharp();
+        pipeline.metadata(function(err, metadata) {
+          assert.equal(info.source, "cache");
+          done();
+        }).on('error', function(err) {
+          throw err;
+        });
+        stream.pipe(pipeline);
+      };
+      var mediaPath = '/media/2015/11/IS_EXISTING.jpg';
+      pictureServiceInstance.getPictureStream(mediaPath, {width: 300}, cb);
     });
-    it('it should stream images in the requeted size', function () {
+
+    it('it should be streamed from storage', function (done) {
+      var cb = function(err, stream, info) {
+        var pipeline = sharp();
+        pipeline.metadata(function(err, metadata) {
+          assert.equal(info.source, "storage");
+          done();
+        }).on('error', function(err) {
+          throw err;
+        });
+        stream.pipe(pipeline);
+      };
+      var mediaPath = '/media/2015/11/NOT_EXISTING.jpg';
+      pictureServiceInstance.getPictureStream(mediaPath, {width: 300}, cb);
     });
-    it('it should still work, even if the file was created in the meantime', function () {
+
+    it('it should fail on unsupported filetypes', function (done) {
+      var cb = function(err, stream, info) {
+        assert.isTrue(err !== null);
+        done();
+      };
+      var mediaPath = '/media/2015/11/NOT_EXISTING_CAT_TIF.jpg';
+      pictureServiceInstance.getPictureStream(mediaPath, {width: 300}, cb);
     });
   });
 });
