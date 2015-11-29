@@ -10,6 +10,9 @@ TODO:
   https://nodejs.org/api/os.html#os_os_tmpdir
 - make replacement of ContentViewLoader optional
 - use URL_prefix from here in content_view_loader
+- hand in gallery change
+- allow to chose if normal size pic comes from orignal or having a max size
+- allow for videos
 */
 
 module.exports = function PictureStreamModule(pb) {
