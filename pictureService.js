@@ -1,8 +1,14 @@
 
 module.exports = function PictureServiceModule(pb) {
 
+    var ContentViewLoaderModule  = require('./lib/content_view_loader');
+
+    var ContentViewLoader = ContentViewLoaderModule(pb);
+    var ContentViewLoader_Backup;
+
+
     /**
-     * Drs - A Drs site theme for PencilBlue
+     * PictureService - A PictureService site theme for PencilBlue
      *
      * @author Blake Callens <blake@pencilblue.org>
      * @copyright 2014 PencilBlue, LLC
@@ -40,6 +46,9 @@ module.exports = function PictureServiceModule(pb) {
      * The result is ignored
      */
     PictureService.onStartup = function(cb) {
+        ContentViewLoader_Backup = pb.ContentViewLoader;
+        pb.ContentViewLoader = ContentViewLoader;
+
         cb(null, true);
     };
 
@@ -51,6 +60,7 @@ module.exports = function PictureServiceModule(pb) {
      * The result is ignored
      */
     PictureService.onShutdown = function(cb) {
+        pb.ContentViewLoader = ContentViewLoader_Backup;
         cb(null, true);
     };
 

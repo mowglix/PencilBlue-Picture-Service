@@ -1,16 +1,11 @@
 "use strict";
 /*
 TODO: 
-- testing
 - restructure external interface
 - set picture quality
 - allow disabling caching
-- error handling
-- add error logging
-
-https://github.com/jhnns/rewire
-http://stackoverflow.com/questions/14874208/how-to-access-and-test-an-internal-non-exports-function-in-a-node-js-module
-http://howtonode.org/testing-private-state-and-mocking-deps
+- setup temp drive to system default
+  https://nodejs.org/api/os.html#os_os_tmpdir
 
 */
 
@@ -66,24 +61,7 @@ var getPicDimensions = function(metadata, demandedSize) {
         return {width: Math.round(metadata.width * demandedSize.height/metadata.height), height: Math.round(demandedSize.height)}; 
     }
     else {
-        return {width: metadata.width, height: metadata.height};
-        // TODO check if needed
-
-        /*
-        demandedSize.height = Math.round(parseInt(demandedSize.height));
-        demandedSize.width  = Math.round(parseInt(demandedSize.width));
-
-
-        var cropWidth = (metadata.width - demandedSize.width)/2;
-        var cropHeight = (metadata.height - demandedSize.height)/2;
-        cropHeight = cropHeight < 0 ? 0 : cropHeight;
-        cropWidth = cropWidth < 0 ? 0 : cropWidth;
-        return {width: metadata.width - 2*cropWidth,
-            height: metadata.height - 2*cropHeight, 
-            top: cropHeight,
-            left: cropWidth
-        };
-        */
+        return {width: Math.round(demandedSize.width), height: Math.round(demandedSize.height)};
     }
 };
 
@@ -91,11 +69,19 @@ var getPictureFromStorage = function(mediaPath, expectedSize, cachePath, setting
   var mservice  = new pb.MediaService();
   var tempPath = settings.Picture_Service_Cache_Path + '/' + uid(20);
   var wstream = fs.createWriteStream(tempPath, {encoding: 'binary'});
-  wstream.on('end', function() {
+  var wstreamInfo = fs.createWriteStream(tempPath + ".json");
+  wstream.on('finish', function() {
     //renaming at the end for avoiding that two processes write simoultanously to the same file.
     fs.rename(tempPath, cachePath, function(err) {
       if (err)
         pb.log.warn("Rewrite tempFile failed, descpription: " + err.description);
+    });
+  });
+  wstreamInfo.on('finish', function() {
+    //renaming at the end for avoiding that two processes write simoultanously to the same file.
+    fs.rename(tempPath + ".json", cachePath + ".json", function(err) {
+      if (err)
+        pb.log.warn("Rewrite temp info file failed, descpription: " + err.description);
     });
   });
 
@@ -114,10 +100,10 @@ var getPictureFromStorage = function(mediaPath, expectedSize, cachePath, setting
           cb(new Error(null, "Fetching Metadata failed"), null, null);
           return;
         }        
-        if(metadata.format !== 'jpeg' &&
-            metadata.format !== 'png' &&
+        if(metadata.format !== 'jpeg' && 
+            metadata.format !== 'png' && 
             metadata.format !== 'webp' &&
-            metadata.format !== 'gif') {
+            metadata.format !== 'gif') { 
             cb(new Error(null, "file type not supported"), null, null);
             return; 
         }
@@ -133,18 +119,21 @@ var getPictureFromStorage = function(mediaPath, expectedSize, cachePath, setting
               return;
             }        
 
-            if (dimensions.top === undefined && dimensions.left === undefined) {
-                pipeline2.resize(dimensions.width, dimensions.height);
-            }
-            else {
-                pipeline2.resize(dimensions.width, dimensions.height).extract(dimensions);
-            }
+            pipeline2.resize(dimensions.width, dimensions.height);
             pipelineFs = pipeline2.clone();
             pipelineCb = pipeline2.clone();
-            cb(null, pipelineCb, {source: "storage"});
+            cb(null, pipelineCb, {source: "storage", mimeType: "image/" + metadata.format, metadata: metadata});
+            
             pipelineFs.pipe(wstream);
 
             mstream2.pipe(pipeline2);
+
+            metadata.exif = undefined;
+            metadata.width = dimensions.width;
+            metadata.height = dimensions.height;
+            wstreamInfo.write(JSON.stringify(metadata), function() {
+              wstreamInfo.end();
+            });
         });                    
       });
       mstream.pipe(pipeline);
@@ -152,8 +141,27 @@ var getPictureFromStorage = function(mediaPath, expectedSize, cachePath, setting
 };
 
 var getPictureFromCache = function(cachePath, cb) {
-  var rstream = fs.createReadStream(cachePath, {encoding: 'binary'});
-  cb(null, rstream, {source: "cache"});
+  fs.readFile(cachePath + ".json", function (err, data) {
+    if(err) {
+      cb(err, null, null);
+      pb.log.error("Reading metadata json file failed: " + err.description);
+      return;
+    }        
+    var metadata = JSON.parse(data);
+
+    fs.stat(cachePath, function(err, stats){
+      if(err) {
+        cb(err, null, null);
+        pb.log.error("Reading metadata json file failed: " + err.description);
+        return;
+      }        
+
+      // Next line must not have the option {encoding: 'binary'}
+      // http://stackoverflow.com/questions/33976205/nodejs-binary-fs-createreadstream-streamed-as-utf-8
+      var rstream = fs.createReadStream(cachePath);
+      cb(null, rstream, {source: "cache", streamLength: stats.size, mimeType: "image/" + metadata.format, metadata: metadata});
+    });
+  });
 };
 
 
@@ -191,8 +199,14 @@ module.exports = function PictureServiceModule(PB) {
       fs.access(cachePath, fs.R_OK, function (err) {
         if (err)
           getPictureFromStorage(mediaPath, expectedSize, cachePath, settings, cb);
-        else
-          getPictureFromCache(cachePath, cb);
+        else {
+          fs.access(cachePath + ".json", fs.R_OK, function (err) {
+            if (err)
+              getPictureFromStorage(mediaPath, expectedSize, cachePath, settings, cb);
+            else
+              getPictureFromCache(cachePath, cb);
+          });
+        }
       });
     });
   };
