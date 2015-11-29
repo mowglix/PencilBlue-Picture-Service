@@ -2,7 +2,6 @@
 /*
 TODO: 
 - quality
-- maxwith / maxheight
 - restructure external interface
 */
 
@@ -48,10 +47,18 @@ var getCachePath = function(mediaPath, expectedSize, pathPrefix) {
   }
 
   if(expectedSize.width !== undefined) {
-      mediaPathOut += '-w'+ Math.round(expectedSize.width);
+      mediaPathOut += '-w'+ expectedSize.width;
   }
   if(expectedSize.height !== undefined) {
-      mediaPathOut += '-h'+ Math.round(expectedSize.height);
+      mediaPathOut += '-h'+ expectedSize.height;
+  }
+  if(expectedSize.width === undefined && expectedSize.height === undefined) {
+    if(expectedSize.maxWidth !== undefined) {
+        mediaPathOut += '-mw'+ expectedSize.maxWidth;
+    }
+    else if(expectedSize.maxHeight !== undefined) {
+        mediaPathOut += '-mh'+ expectedSize.maxHeight;
+    }
   }
   mediaPathOut = getCacheDir(pathPrefix) + mediaPathOut + extension;
   return mediaPathOut;
@@ -59,19 +66,29 @@ var getCachePath = function(mediaPath, expectedSize, pathPrefix) {
 
 var getPicDimensions = function(metadata, demandedSize) {
     if(demandedSize.width === undefined && demandedSize.height === undefined) {
+      if(demandedSize.maxWidth === undefined && demandedSize.maxHeight === undefined) {
         return {width: metadata.width, height: metadata.height};
+      }
+      else {
+        if(demandedSize.maxWidth !== undefined) {
+          if (metadata.width > demandedSize.maxWidth) {
+            demandedSize.width = demandedSize.maxWidth;
+          }
+        }
+        else if(demandedSize.maxHeight !== undefined) {
+          if (metadata.height > demandedSize.maxHeight) {
+            demandedSize.height = demandedSize.maxHeight;
+          }
+        }
+      }
     } 
-    else if (demandedSize.height === undefined) {
-        demandedSize.width = parseInt(demandedSize.width);
-        return {width: Math.round(demandedSize.width), height: Math.round(metadata.height * demandedSize.width/metadata.width)};
+    if (demandedSize.height === undefined) {
+      return {width: demandedSize.width, height: Math.round(metadata.height * demandedSize.width/metadata.width)};
     }
-    else if (demandedSize.width === undefined) {
-        demandedSize.height = parseInt(demandedSize.height);
-        return {width: Math.round(metadata.width * demandedSize.height/metadata.height), height: Math.round(demandedSize.height)}; 
+    if (demandedSize.width === undefined) {
+      return {width: Math.round(metadata.width * demandedSize.height/metadata.height), height: demandedSize.height}; 
     }
-    else {
-        return {width: Math.round(demandedSize.width), height: Math.round(demandedSize.height)};
-    }
+    return {width: demandedSize.width, height: demandedSize.height};
 };
 
 var getPictureFromStorage = function(mediaPath, expectedSize, cachePath, settings, cb) {
@@ -234,6 +251,15 @@ module.exports = function PictureServiceModule(PB) {
   };
 
   PictureService.prototype.getPictureStream = function(mediaPath, expectedSize, cb){
+    expectedSize.width     = (expectedSize.width     !== undefined ? Math.round(parseInt(expectedSize.width)) : undefined);
+    expectedSize.height    = (expectedSize.height    !== undefined ? Math.round(parseInt(expectedSize.height)) : undefined);
+    expectedSize.maxWidth  = (expectedSize.maxWidth  !== undefined ? Math.round(parseInt(expectedSize.maxWidth)) : undefined);
+    expectedSize.maxHeight = (expectedSize.maxHeight !== undefined ? Math.round(parseInt(expectedSize.maxHeight)) : undefined);
+    expectedSize.width     = (isNaN(expectedSize.width)     ? undefined : expectedSize.width);
+    expectedSize.height    = (isNaN(expectedSize.height)    ? undefined : expectedSize.height);
+    expectedSize.maxWidth  = (isNaN(expectedSize.maxWidth)  ? undefined : expectedSize.maxWidth);
+    expectedSize.maxHeight = (isNaN(expectedSize.maxHeight) ? undefined : expectedSize.maxHeight);
+
     var self = this;
     var cachePath, pluginService;
 

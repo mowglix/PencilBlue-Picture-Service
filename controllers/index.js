@@ -37,28 +37,41 @@ module.exports = function PictureStreamModule(pb) {
         var PictureService = pb.PluginService.getService('PictureService', 'PencilBlue-Picture-Service');
         var pictureService = new PictureService();
 
-        //remove potential harmfull user-input
-        var expectedSize = {
-            width: url_parts.query.width,
-            height: url_parts.query.height
-        };
-
-        pictureService.getPictureStream(mediaPath, expectedSize, function(err, stream, info){
-            if(err !== null)  {
-                self.reqHandler.serveError(err);
+        var pluginService  = new pb.PluginService();
+        pluginService.getSettingsKV ('PencilBlue-Picture-Service', function(err, settings) {
+            if(err) {
+                cb(err);
+                pb.log.error("getSettingsKV failed: " + err.description);
                 return;
             }
-            stream.once('error', function(err) {
-                pb.log.error("Picturestream failed: " + err.description);
+
+            //remove potential harmfull user-input
+            var expectedSize = {
+                width: url_parts.query.width,
+                height: url_parts.query.height,
+                maxWidth: settings.Max_Width,
+                maxHeight: settings.Max_Height 
+            };
+
+            pictureService.getPictureStream(mediaPath, expectedSize, function(err, stream, info){
+                if(err !== null)  {
+                    pb.log.error("getPictureStream failed: " + err.description);
+                    self.reqHandler.serveError(err);
+                    return;
+                }
+                stream.once('error', function(err) {
+                    pb.log.error("Picturestream failed: " + err.description);
+                });
+                if (info.mimeType) {
+                    self.res.setHeader('Content-Type', info.mimeType);
+                }
+                if (info.streamLength) {
+                    self.res.setHeader('Content-Length', info.streamLength);
+                }
+          
+                stream.pipe(self.res);
             });
-            if (info.mimeType) {
-                self.res.setHeader('Content-Type', info.mimeType);
-            }
-            if (info.streamLength) {
-                self.res.setHeader('Content-Length', info.streamLength);
-            }
-      
-            stream.pipe(self.res);
+
         });
     };
 

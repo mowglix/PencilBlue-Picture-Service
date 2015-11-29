@@ -17,6 +17,12 @@
     },{
         "name": "Do_Cache",
         "value": "true"
+    },{
+        "name": "Max_Width",
+        "value": ""
+    },{
+        "name": "Max_Height",
+        "value": ""
     }],
     "permissions": {
         "ACCESS_USER": [],
