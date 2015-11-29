@@ -1,12 +1,9 @@
 "use strict";
 /*
 TODO: 
+- quality
+- maxwith / maxheight
 - restructure external interface
-- set picture quality
-- allow disabling caching
-- setup temp drive to system default
-  https://nodejs.org/api/os.html#os_os_tmpdir
-
 */
 
 /* ****************************************************************
@@ -16,6 +13,14 @@ var fs = require('fs');
 var uid = require('uid');
 var sharp = require('sharp');
 
+
+/* ****************************************************************
+* CONSTANTS
+* **************************************************************** */
+
+var TEMP_CACHE_SUBFOLDER = "pb_picture_cache";
+
+
 /* ****************************************************************
 * Variables
 * **************************************************************** */
@@ -24,8 +29,12 @@ var pb = null;
 /* ****************************************************************
 * Helpers
 * **************************************************************** */
-var getCachePath = function(mediaPath, expectedSize, pathPrefix) {
+var getCacheDir = function(pathPrefix) {
   var pathPrefixOut = pathPrefix + (pathPrefix.slice(-1) === '/' ? '' : '/' );
+  return pathPrefixOut + TEMP_CACHE_SUBFOLDER + "/";
+};
+
+var getCachePath = function(mediaPath, expectedSize, pathPrefix) {
   var re = /(?:\.([^.]+))?$/;
   var extension = re.exec(mediaPath)[1];
   var mediaPathOut = (mediaPath.substring(0,1) === '/' ? mediaPath.substring(1) : mediaPath );
@@ -44,7 +53,7 @@ var getCachePath = function(mediaPath, expectedSize, pathPrefix) {
   if(expectedSize.height !== undefined) {
       mediaPathOut += '-h'+ Math.round(expectedSize.height);
   }
-  mediaPathOut = pathPrefixOut + mediaPathOut + extension;
+  mediaPathOut = getCacheDir(pathPrefix) + mediaPathOut + extension;
   return mediaPathOut;
 };
 
@@ -66,24 +75,60 @@ var getPicDimensions = function(metadata, demandedSize) {
 };
 
 var getPictureFromStorage = function(mediaPath, expectedSize, cachePath, settings, cb) {
+  // establish temp subfolder if needed
+
+  var tempDir = getCacheDir(settings.Picture_Service_Cache_Path);
+  var tempPath = tempDir + uid(20);
+
+  settings.Do_Cache = settings.Do_Cache.toLowerCase();
+
+  if (settings.Do_Cache !== "true" || settings.Picture_Service_Cache_Path === '') {
+      settings.Do_Cache = "false";
+      getStorageStreamAndCache(mediaPath, expectedSize, null, null, settings, cb);
+      return;
+  }
+
+  fs.stat(tempDir, function(err, stats){
+    if(err === null && stats.isDirectory()) {
+      getStorageStreamAndCache(mediaPath, expectedSize, cachePath, tempPath, settings, cb);
+    }
+    else if (err && err.code !== "ENOENT") {
+      settings.Do_Cache = "false";
+      getStorageStreamAndCache(mediaPath, expectedSize, null, null, settings, cb);
+    }
+    else {
+      fs.mkdir(tempDir, function(err) {
+        if (err) {
+          settings.Do_Cache = "false";
+        }
+        getStorageStreamAndCache(mediaPath, expectedSize, cachePath, tempPath, settings, cb);
+      });
+    }
+  });
+};
+
+var getStorageStreamAndCache = function(mediaPath, expectedSize, cachePath, tempPath, settings, cb) {
   var mservice  = new pb.MediaService();
-  var tempPath = settings.Picture_Service_Cache_Path + '/' + uid(20);
-  var wstream = fs.createWriteStream(tempPath, {encoding: 'binary'});
-  var wstreamInfo = fs.createWriteStream(tempPath + ".json");
-  wstream.on('finish', function() {
-    //renaming at the end for avoiding that two processes write simoultanously to the same file.
-    fs.rename(tempPath, cachePath, function(err) {
-      if (err)
-        pb.log.warn("Rewrite tempFile failed, descpription: " + err.description);
+  var wstream, wstreamInfo;
+
+  if (settings.Do_Cache === "true") {
+    wstream = fs.createWriteStream(tempPath, {encoding: 'binary'});
+    wstreamInfo = fs.createWriteStream(tempPath + ".json");
+    wstream.on('finish', function() {
+      //renaming at the end for avoiding that two processes write simoultanously to the same file.
+      fs.rename(tempPath, cachePath, function(err) {
+        if (err)
+          pb.log.warn("Rewrite tempFile failed, descpription: " + err.description);
+      });
     });
-  });
-  wstreamInfo.on('finish', function() {
-    //renaming at the end for avoiding that two processes write simoultanously to the same file.
-    fs.rename(tempPath + ".json", cachePath + ".json", function(err) {
-      if (err)
-        pb.log.warn("Rewrite temp info file failed, descpription: " + err.description);
+    wstreamInfo.on('finish', function() {
+      //renaming at the end for avoiding that two processes write simoultanously to the same file.
+      fs.rename(tempPath + ".json", cachePath + ".json", function(err) {
+        if (err)
+          pb.log.warn("Rewrite temp info file failed, descpription: " + err.description);
+      });
     });
-  });
+  }
 
   mservice.getContentStreamByPath(mediaPath, function(err, mstream) {
     if(err) {
@@ -120,20 +165,24 @@ var getPictureFromStorage = function(mediaPath, expectedSize, cachePath, setting
             }        
 
             pipeline2.resize(dimensions.width, dimensions.height);
-            pipelineFs = pipeline2.clone();
             pipelineCb = pipeline2.clone();
+
+            if (settings.Do_Cache === "true") {
+              pipelineFs = pipeline2.clone();
+              pipelineFs.pipe(wstream);
+
+              metadata.exif = undefined;
+              metadata.width = dimensions.width;
+              metadata.height = dimensions.height;
+              wstreamInfo.write(JSON.stringify(metadata), function() {
+                wstreamInfo.end();
+              });
+            }
+
             cb(null, pipelineCb, {source: "storage", mimeType: "image/" + metadata.format, metadata: metadata});
-            
-            pipelineFs.pipe(wstream);
 
             mstream2.pipe(pipeline2);
 
-            metadata.exif = undefined;
-            metadata.width = dimensions.width;
-            metadata.height = dimensions.height;
-            wstreamInfo.write(JSON.stringify(metadata), function() {
-              wstreamInfo.end();
-            });
         });                    
       });
       mstream.pipe(pipeline);

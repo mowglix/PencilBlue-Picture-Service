@@ -13,7 +13,10 @@
     },
     "settings": [{
         "name": "Picture_Service_Cache_Path",
-        "value": "/tmp"
+        "value": ""
+    },{
+        "name": "Do_Cache",
+        "value": "true"
     }],
     "permissions": {
         "ACCESS_USER": [],

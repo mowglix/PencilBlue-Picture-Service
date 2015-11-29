@@ -1,3 +1,6 @@
+"use strict";
+
+var os = require('os');
 
 module.exports = function PictureServiceModule(pb) {
 
@@ -22,6 +25,9 @@ module.exports = function PictureServiceModule(pb) {
      * The result is ignored
      */
     PictureService.onInstall = function(cb) {
+        var pluginService = new pb.PluginService();
+        var tempPath = os.tmpdir();
+        pluginService.setSetting("Picture_Service_Cache_Path", tempPath, "PencilBlue-Picture-Service", function(){});
         cb(null, true);
     };
 
