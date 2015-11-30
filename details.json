@@ -32,6 +32,12 @@
     },{
         "name": "Gallery_Enabled",
         "value": "true"
+    },{
+        "name": "Valid_Width_List",
+        "value": "64, 128 "
+    },{
+        "name": "Valid_Hight_List",
+        "value": "64, 128 "
     }],
     "permissions": {
         "ACCESS_USER": [],

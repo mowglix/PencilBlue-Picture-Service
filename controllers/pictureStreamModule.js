@@ -1,10 +1,10 @@
 /*
 TODO: 
-- hand in gallery change
-
-- guard from resize attacks
+- avoid empty gallery tag if no media
 
 - Readme
+
+- hand in gallery change
 
 - fix the date form of article entries
 - allow for videos
@@ -21,6 +21,21 @@ module.exports = function PictureStreamModule(pb) {
     // Constants
     var URL_prefix   = constants.url_prefix;
 
+    var sanitizeExpectedSize = function(width, validWidthList) {
+        var validWidth = validWidthList.split(",");
+        var i=0;
+        var valid = false;
+
+        for (; i < validWidth.length; i++) {
+            if (validWidth[i].trim() == width)
+                valid = true;
+        }
+
+        if (valid)
+            return width;
+        else
+            return undefined;
+    };
 
     var getRequestParameters = function (url_parts) {
         var mediaPath = "";
@@ -86,6 +101,12 @@ module.exports = function PictureStreamModule(pb) {
                 maxWidth: settings.Max_Width,
                 maxHeight: settings.Max_Height 
             };
+
+            //check that width/height is allowed to prevent from
+            //attacks trying to fill the cache with pics
+            
+            expectedSize.width  = sanitizeExpectedSize(expectedSize.width,settings.Valid_Width_List);
+            expectedSize.height = sanitizeExpectedSize(expectedSize.height,settings.Valid_Hight_List);
 
             if (isThumb && quality_thumb !== undefined) {
                 expectedSize.quality = quality_thumb;
