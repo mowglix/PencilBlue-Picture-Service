@@ -1,7 +1,5 @@
 /*
 TODO: 
-- Don't use ? for caching reasons
-
 - hand in gallery change
 
 - guard from resize attacks
@@ -22,6 +20,37 @@ module.exports = function PictureStreamModule(pb) {
 
     // Constants
     var URL_prefix   = constants.url_prefix;
+
+
+    var getRequestParameters = function (url_parts) {
+        var mediaPath = "";
+        var origPathName = "";
+        var query = {};
+        var queryElements, key, value;
+        var i=1; // not because first element is @PAR
+
+        // Patten ends with: /@PAR_Q20_W300
+        url_parts.pathname = (url_parts.pathname.slice(-1) === '/' ? url_parts.pathname.substring(0,url_parts.pathname.length-1) : url_parts.pathname );
+        var pathElements = url_parts.pathname.split("/");
+
+        if(pathElements[pathElements.length-1].substring(0,5) === '@PAR_') {
+            queryElements = pathElements[pathElements.length-1].split("_");
+
+            for(; i < queryElements.length; i++) {
+                key = queryqueryElements[i].substring(0,1).toLowerCase();
+                value = queryqueryElements[i].substring(1);
+                query[key] = value;
+            }
+        }
+        else {
+            origPathName = url_parts.pathname;
+        }
+
+        mediaPath = "/media/" + origPathName.substring(URL_prefix.length);
+
+        return {mediaPath: mediaPath, query: query};
+    };
+
  
     var PictureStream = function () {};
     util.inherits(PictureStream, pb.BaseController);
@@ -31,7 +60,7 @@ module.exports = function PictureStreamModule(pb) {
        
         var url_parts = url.parse(this.req.url, true);
 
-        var mediaPath = "/media/" + url_parts.pathname.substring(URL_prefix.length);
+        var requestParameters = getRequestParameters(url_parts);
 
         var PictureService = pb.PluginService.getService('PictureService', 'PencilBlue-Picture-Service');
         var pictureService = new PictureService();
@@ -44,7 +73,7 @@ module.exports = function PictureStreamModule(pb) {
                 return;
             }
 
-            var isThumb = url_parts.query.quality !== undefined && url_parts.query.quality.toLowerCase().trim() === 'thumb';
+            var isThumb = requestParameters.query.q !== undefined && requestParameters.query.q.toLowerCase().trim() === 'thumb';
             var quality_regular = parseInt(settings.Quality_Regular);
             var quality_thumb   = parseInt(settings.Quality_Thumbnail);
             quality_thumb   = (isNaN(quality_thumb)   ? undefined : Math.round(quality_thumb));
@@ -52,8 +81,8 @@ module.exports = function PictureStreamModule(pb) {
 
             //remove potential harmfull user-input
             var expectedSize = {
-                width: url_parts.query.width,
-                height: url_parts.query.height,
+                width: requestParameters.query.w,
+                height: requestParameters.query.h,
                 maxWidth: settings.Max_Width,
                 maxHeight: settings.Max_Height 
             };
@@ -66,7 +95,7 @@ module.exports = function PictureStreamModule(pb) {
             }
 
 
-            pictureService.getPictureStream(mediaPath, expectedSize, function(err, stream, info){
+            pictureService.getPictureStream(requestParameters.mediaPath, expectedSize, function(err, stream, info){
                 if(err !== null)  {
                     pb.log.error("getPictureStream failed: " + err.description);
                     self.reqHandler.serveError(err);
