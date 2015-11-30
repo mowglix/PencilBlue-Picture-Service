@@ -1,8 +1,6 @@
 /*
 TODO: 
 
-- change /images/ to something else
-
 - Readme
 
 - hand in gallery change
@@ -91,6 +89,11 @@ module.exports = function PictureStreamModule(pb) {
                 pb.log.error("getSettingsKV failed: " + err.description);
                 return;
             }
+            if (settings.Picture_Service_Route_Enabled.toLowerCase().trim() !== 'true') {
+                self.reqHandler.serve404();
+                //self.reqHandler.serveError(err);
+                return;
+            }            
 
             var isThumb = requestParameters.query.q !== undefined && requestParameters.query.q.toLowerCase().trim() === 'thumb';
             var quality_regular = parseInt(settings.Quality_Regular);

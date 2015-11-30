@@ -1,7 +1,6 @@
 "use strict";
 /*
 TODO: 
-- restructure external interface
 */
 
 /* ****************************************************************

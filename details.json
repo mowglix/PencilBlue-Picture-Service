@@ -18,6 +18,12 @@
         "name": "Do_Cache",
         "value": "true"
     },{
+        "name": "Gallery_Enabled",
+        "value": "true"
+    },{
+        "name": "Picture_Service_Route_Enabled",
+        "value": "true"
+    },{
         "name": "Max_Width",
         "value": ""
     },{
@@ -29,9 +35,6 @@
     },{
         "name": "Quality_Thumbnail",
         "value": ""
-    },{
-        "name": "Gallery_Enabled",
-        "value": "true"
     },{
         "name": "Valid_Width_List",
         "value": "64, 128 "
