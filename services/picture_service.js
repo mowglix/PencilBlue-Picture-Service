@@ -17,7 +17,7 @@ var constants   = require('../lib/constants');
 * CONSTANTS
 * **************************************************************** */
 
-var TEMP_CACHE_SUBFOLDER = "pb_picture_cache";
+var TEMP_CACHE_SUBFOLDER = constants.temp_cache_subfolder;
 
 
 /* ****************************************************************
