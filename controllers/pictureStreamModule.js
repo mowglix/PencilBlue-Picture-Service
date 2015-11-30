@@ -1,18 +1,15 @@
 
 /*
 TODO: 
-- set mime type
-- enable/disable
-- guard from resize attacks
-- add picture gallery
-- allow disabling caching
-- setup temp drive to system default
-  https://nodejs.org/api/os.html#os_os_tmpdir
 - make replacement of ContentViewLoader optional
-- use URL_prefix from here in content_view_loader
 - hand in gallery change
-- allow to chose if normal size pic comes from orignal or having a max size
+
+- guard from resize attacks
+
+- Readme
+
 - allow for videos
+- Don't use ? for caching reasons
 */
 
 module.exports = function PictureStreamModule(pb) {
@@ -20,9 +17,10 @@ module.exports = function PictureStreamModule(pb) {
     //pb dependencies
     var util = pb.util;
     var url = require('url');
+    var constants = require('../lib/constants');
 
     // Constants
-    var URL_prefix = "/images/";
+    var URL_prefix   = constants.url_prefix;
  
     var PictureStream = function () {};
     util.inherits(PictureStream, pb.BaseController);
@@ -45,6 +43,12 @@ module.exports = function PictureStreamModule(pb) {
                 return;
             }
 
+            var isThumb = url_parts.query.quality !== undefined && url_parts.query.quality.toLowerCase().trim() === 'thumb';
+            var quality_regular = parseInt(settings.Quality_Regular);
+            var quality_thumb   = parseInt(settings.Quality_Thumbnail);
+            quality_thumb   = (isNaN(quality_thumb)   ? undefined : Math.round(quality_thumb));
+            quality_regular = (isNaN(quality_regular) ? undefined : Math.round(quality_regular));
+
             //remove potential harmfull user-input
             var expectedSize = {
                 width: url_parts.query.width,
@@ -52,6 +56,14 @@ module.exports = function PictureStreamModule(pb) {
                 maxWidth: settings.Max_Width,
                 maxHeight: settings.Max_Height 
             };
+
+            if (isThumb && quality_thumb !== undefined) {
+                expectedSize.quality = quality_thumb;
+            }
+            else if (!isThumb && quality_regular !== undefined) {
+                expectedSize.quality = quality_regular;                
+            }
+
 
             pictureService.getPictureStream(mediaPath, expectedSize, function(err, stream, info){
                 if(err !== null)  {
@@ -87,5 +99,3 @@ module.exports = function PictureStreamModule(pb) {
     //exports
     return PictureStream;
 };
-
-

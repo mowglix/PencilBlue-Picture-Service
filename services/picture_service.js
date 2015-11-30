@@ -1,7 +1,6 @@
 "use strict";
 /*
 TODO: 
-- quality
 - restructure external interface
 */
 
@@ -60,6 +59,9 @@ var getCachePath = function(mediaPath, expectedSize, pathPrefix) {
         mediaPathOut += '-mh'+ expectedSize.maxHeight;
     }
   }
+  if(expectedSize.quality !== undefined) {
+      mediaPathOut += '-q'+ expectedSize.quality;
+  }
   mediaPathOut = getCacheDir(pathPrefix) + mediaPathOut + extension;
   return mediaPathOut;
 };
@@ -67,7 +69,7 @@ var getCachePath = function(mediaPath, expectedSize, pathPrefix) {
 var getPicDimensions = function(metadata, demandedSize) {
     if(demandedSize.width === undefined && demandedSize.height === undefined) {
       if(demandedSize.maxWidth === undefined && demandedSize.maxHeight === undefined) {
-        return {width: metadata.width, height: metadata.height};
+        return {width: metadata.width, height: metadata.height, quality: demandedSize.quality};
       }
       else {
         if(demandedSize.maxWidth !== undefined) {
@@ -83,12 +85,12 @@ var getPicDimensions = function(metadata, demandedSize) {
       }
     } 
     if (demandedSize.height === undefined) {
-      return {width: demandedSize.width, height: Math.round(metadata.height * demandedSize.width/metadata.width)};
+      return {width: demandedSize.width, height: Math.round(metadata.height * demandedSize.width/metadata.width), quality: demandedSize.quality};
     }
     if (demandedSize.width === undefined) {
-      return {width: Math.round(metadata.width * demandedSize.height/metadata.height), height: demandedSize.height}; 
+      return {width: Math.round(metadata.width * demandedSize.height/metadata.height), height: demandedSize.height, quality: demandedSize.quality}; 
     }
-    return {width: demandedSize.width, height: demandedSize.height};
+    return {width: demandedSize.width, height: demandedSize.height, quality: demandedSize.quality};
 };
 
 var getPictureFromStorage = function(mediaPath, expectedSize, cachePath, settings, cb) {
@@ -182,6 +184,8 @@ var getStorageStreamAndCache = function(mediaPath, expectedSize, cachePath, temp
             }        
 
             pipeline2.resize(dimensions.width, dimensions.height);
+            if(dimensions.quality)
+              pipeline2.quality(dimensions.quality);
             pipelineCb = pipeline2.clone();
 
             if (settings.Do_Cache === "true") {
@@ -255,10 +259,12 @@ module.exports = function PictureServiceModule(PB) {
     expectedSize.height    = (expectedSize.height    !== undefined ? Math.round(parseInt(expectedSize.height)) : undefined);
     expectedSize.maxWidth  = (expectedSize.maxWidth  !== undefined ? Math.round(parseInt(expectedSize.maxWidth)) : undefined);
     expectedSize.maxHeight = (expectedSize.maxHeight !== undefined ? Math.round(parseInt(expectedSize.maxHeight)) : undefined);
+    expectedSize.quality   = (expectedSize.quality   !== undefined ? Math.round(parseInt(expectedSize.quality)) : undefined);
     expectedSize.width     = (isNaN(expectedSize.width)     ? undefined : expectedSize.width);
     expectedSize.height    = (isNaN(expectedSize.height)    ? undefined : expectedSize.height);
     expectedSize.maxWidth  = (isNaN(expectedSize.maxWidth)  ? undefined : expectedSize.maxWidth);
     expectedSize.maxHeight = (isNaN(expectedSize.maxHeight) ? undefined : expectedSize.maxHeight);
+    expectedSize.quality   = (isNaN(expectedSize.quality)   ? undefined : expectedSize.quality);
 
     var self = this;
     var cachePath, pluginService;

@@ -23,6 +23,12 @@
     },{
         "name": "Max_Height",
         "value": ""
+    },{
+        "name": "Quality_Regular",
+        "value": ""
+    },{
+        "name": "Quality_Thumbnail",
+        "value": ""
     }],
     "permissions": {
         "ACCESS_USER": [],
