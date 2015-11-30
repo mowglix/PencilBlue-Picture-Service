@@ -10,6 +10,7 @@ TODO:
 var fs = require('fs');
 var uid = require('uid');
 var sharp = require('sharp');
+var constants   = require('../lib/constants');
 
 
 /* ****************************************************************
@@ -252,6 +253,10 @@ module.exports = function PictureServiceModule(PB) {
 
   PictureService.getName = function(){
     return "PictureService";
+  };
+  
+  PictureService.prototype.getUrlPrefix = function(){
+    constants.url_prefix();
   };
 
   PictureService.prototype.getPictureStream = function(mediaPath, expectedSize, cb){

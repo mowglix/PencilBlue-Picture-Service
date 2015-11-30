@@ -1,15 +1,16 @@
-
 /*
 TODO: 
-- make replacement of ContentViewLoader optional
+- Don't use ? for caching reasons
+
 - hand in gallery change
 
 - guard from resize attacks
 
 - Readme
 
+- fix the date form of article entries
 - allow for videos
-- Don't use ? for caching reasons
+- improve video upload
 */
 
 module.exports = function PictureStreamModule(pb) {
@@ -47,7 +48,7 @@ module.exports = function PictureStreamModule(pb) {
             var quality_regular = parseInt(settings.Quality_Regular);
             var quality_thumb   = parseInt(settings.Quality_Thumbnail);
             quality_thumb   = (isNaN(quality_thumb)   ? undefined : Math.round(quality_thumb));
-            quality_regular = (isNaN(quality_regular) ? undefined : Math.round(quality_regular));
+            quality_regular = (isNaN(quality_regular) ? undefined : Math.round(qupictureServiceality_regular));
 
             //remove potential harmfull user-input
             var expectedSize = {

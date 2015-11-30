@@ -29,6 +29,9 @@
     },{
         "name": "Quality_Thumbnail",
         "value": ""
+    },{
+        "name": "Gallery_Enabled",
+        "value": "true"
     }],
     "permissions": {
         "ACCESS_USER": [],
