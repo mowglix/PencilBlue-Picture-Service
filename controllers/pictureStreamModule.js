@@ -5,12 +5,9 @@ TODO:
 
 - hand in gallery change
 
-- allow deactivating this route
-- define what article template to use
 - avoid empty gallery tag if no media
 - fix the date form of article entries
 - allow for videos
-- improve video upload
 */
 
 module.exports = function PictureStreamModule(pb) {
