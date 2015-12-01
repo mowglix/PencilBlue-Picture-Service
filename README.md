@@ -8,14 +8,14 @@ It provides two main functionalities:
 
 There are mainly 3 ways how this service can be used.
 1. Have your article view enriched by a gallery showing all your media (this can be disabled)
-2. Use a dedicated media link, that allows resizing pictures to a target format by passing on parameters (this can be disabled)
+2. Use a dedicated media route, that allows resizing pictures to a target format by passing on parameters (this can be disabled)
 3. Use the picture-resize-service programatically for your own project.
 
 ##1. The gallery view
 ![Gallery View](./doc/galleryOverview.png)
-The gallery library from [Fotorama](http://fotorama.io/) is used here. It can be altered by changing the templates or it can be replaced by virtually any other gallery / carousel library.
+The  [Fotorama](http://fotorama.io/) gallery library is used here. It can be altered by changing the templates or it can be replaced by virtually any other gallery / carousel library via templates.
 
-##2. How the link works
+##2. How the picture service route work
 ![Links](./doc/link.png)
 
 ##3. Using the service
@@ -53,16 +53,49 @@ pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, inf
 ```
 
 
-// TODO link to Fotorama
-Possible use cases:
-- Provide image thumbnails
-- Provide images at a standardized with and/or height
-- Improve load times by serving JPEGs at a lower quality
-- Use pictures for a picture gallery or carusell (Project is shipped with Fotorama, it can be used with virtually an other alternative).
+# The gallery templates
+
+##Features
+* Comes with the [Fotorama](http://fotorama.io/) gallery library 
+- Gallery can be highly customized
+- Gallery can be replaced by altering the templates
+- Adds localization features for displaying dates and time
+- The gallery can be disabled from settings
+
+#Template placeholders:
+| Placeholder   |  Comments |
+| ------------- | ----------|
+|article_timestamp_L   | Example: 2015-11-30|
+|article_timestamp_l   | Example: 2015-11-30|
+|article_timestamp_LL   | Example: 30 November, 2015|
+|article_timestamp_ll   | Example: 30 Nov, 2015|
+|article_timestamp_LLL   | Example: 30 November, 2015 10:57 PM|
+|article_timestamp_lll   | Example: 30 Nov, 2015 10:57 PM|
+|article_timestamp_LLLL   | Example: Monday, 30 November, 2015 10:57 PM|
+|article_timestamp_llll   | Example: Mon, 30 Nov, 2015 10:57 PM        |
+|article_timestamp_LT   | Example: 8:30 PM|
+|article_timestamp_LTS   | Example: 8:30:25 PM|
+
+All timestamps are being translated to the browsers prefered language using MomentJS. Please refer to their [start page](http://momentjs.com/) to find examples of how these formats behave in other languages.
+
+#Plugin settings
+| Option        | Values        |  Comments |
+| ------------- |---------------| ----------|
+| Gallery_Enabled | true|false |   |
+| Max_Width      | integer      | if neither target witdh nor height is provided, than images are not returned wider than defined  |
+| Max_Height      | integer      | if neither target witdh nor height is provided, than images are not returned wider than defined (If Max_Width is defined, this setting will be ignored)   |
+| Quality_Regular      | 1-100      | The JPEG / WebP picture / compression quality of regular pictures (none-thumbnails)| 
+| Quality_Thumbnail      | 1-100      | The JPEG / WebP picture / compression quality of thumbnails  | 
 
 
-By default the plugin changes the article visualization to this:
-// TODO add screenshot
+
+#The gallery templates
+
+## Route Format
+
+
+#Configuration
+
 
 
 The service
@@ -77,7 +110,7 @@ Features
 - Resized pictures are being cached to reduce processor load
 - Caching can be disabled (enabled by default)
 - Default cache directory is the the os temp-directory
-
+- template choosing
 
 Installation
 ------------
@@ -121,35 +154,11 @@ This project comes by default with a route that allows defining as part of the r
 In order to circumvent such attacks the "allowed" width and height values have to be predefined in the plugin settings (Valid_Width_List, Valid_Hight_List). If a width/height does not comply to those values it gets removed from the requested paramter list.
 
 
-The article view with galley
-----------
-
-Features
-- Gallery
-- time
-- template choosing
-
-
-Usage 
-
-URL Format
-
-
-Template placeholders:
-Under revision, changes to be expected. Plus better/internationalized time/date support.
-
-// TODO add all the new article placeholders
-Configuration
-Gallery_Enabled
-Max_Width
-Max_Height
-Quality_Regular
-Quality_Thumbnail
 
 
 
 
-Credits
-----------
-Fotorama an awesome versatile gallery and carussel library: http://fotorama.io/
-Sharp a great NodeJS picture manipulation library: http://sharp.dimens.io/en/stable/
+#Credits
+* [Fotorama](http://fotorama.io/) (Gallery / carousel library)
+* [Sharp](http://sharp.dimens.io/en/stable/) NodeJS image library
+* [MomentJS](http://momentjs.com/) A time/date library allowing i18n
