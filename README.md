@@ -89,7 +89,7 @@ pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, inf
 |article_gallery_elem_name|The caption of a media file|
 
 
-All timestamps are being translated to the browsers prefered language using MomentJS. Please refer to their [start page](http://momentjs.com/) to find examples of how these formats behave in other languages.
+All timestamps are being translated to the browsers prefered language using MomentJS. Please refer to their [start page](http://momentjs.com/) to find examples of how these formats behave in other languages. These placeholders will ignore PencilBlues system settings.
 
 ##Plugin settings
 | Option        | Values        |  Comments |
