@@ -3,10 +3,12 @@
 This project is a plugin for the CMS [PencilBlue](https://pencilblue.org/).
 
 It provides two main functionalities:
+
 * a PencilBlue-service that allows to deliver resized pictures that are stored as "media" and which is designed to be reused in other projects
 * optionally an extended "article" visualization that shows a picture gallery below the actual article
 
 There are mainly 3 ways how this service can be used.
+
 1. Have your article view enriched by a gallery showing all your media (this can be disabled)
 2. Use a dedicated media route, that allows resizing pictures to a target format by passing on parameters (this can be disabled)
 3. Use the picture-resize-service programatically for your own project.
