@@ -140,7 +140,7 @@ Also the settings Quality_Regular, Quality_Thumbnail, Max_Height, Max_Width desr
 
 
 ##Disk flooding attacks
-This project comes by default with a route that allows defining as part of the route the expected with and height of the image. If no countermeasures are taken, this would create a vulnurabilities:
+This project comes by default with a route that allows defining as part of the route the expected width and height of the image. If no countermeasures are taken, this would create a vulnurabilities:
 1. Adversaries could try to send in large target width / height values in order to crash the server.
 2. Adversaries could try to request a all possible none-crashing permutations of widht, height and width/height for every picture available to flood the cash folder and ultimately have the server run out of space.
 
