@@ -1,11 +1,57 @@
 # PencilBlue-Picture-Service
 
-//TODO add link
-This project is a plugin for the CMS PencilBlue.
+This project is a plugin for the CMS [PencilBlue](https://pencilblue.org/).
 
 It provides two main functionalities:
-- a PencilBlue-service that allows to deliver resized pictures that are stored as "media" and which is designed to be reused in other projects
-- optionally an extended "article" visualization that shows a picture gallery below the actual article
+* a PencilBlue-service that allows to deliver resized pictures that are stored as "media" and which is designed to be reused in other projects
+* optionally an extended "article" visualization that shows a picture gallery below the actual article
+
+There are mainly 3 ways how this service can be used.
+1. Have your article view enriched by a gallery showing all your media (this can be disabled)
+2. Use a dedicated media link, that allows resizing pictures to a target format by passing on parameters (this can be disabled)
+3. Use the picture-resize-service programatically for your own project.
+
+##1. The gallery view
+![Gallery View](./doc/galleryOverview.png)
+The gallery library from [Fotorama](http://fotorama.io/) is used here. It can be altered by changing the templates or it can be replaced by virtually any other gallery / carousel library.
+
+##2. How the link works
+![Links](./doc/link.png)
+
+##3. Using the service
+
+```javascript
+...
+var PictureService = pb.PluginService.getService('PictureService', 'PencilBlue-Picture-Service');
+var mediaId = '/media/2015/11/ceb046e8-3977-4ca2-9d5a-4ffb26891d4f-1448798830584.jpg';
+var expectedSize = {
+    width: 128,
+    height: 128,
+    maxWidth: undefined,
+    maxHeight: undefined,
+    quality: 60
+};
+pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, info){
+    if(err !== null)  {
+        pb.log.error("getPictureStream failed: " + err.description);
+        self.reqHandler.serveError(err);
+        return;
+    }
+    stream.once('error', function(err) {
+        pb.log.error("Picturestream failed: " + err.description);
+    });
+    if (info.mimeType) {
+        self.res.setHeader('Content-Type', info.mimeType);
+    }
+    if (info.streamLength) {
+        self.res.setHeader('Content-Length', info.streamLength);
+    }
+
+    stream.pipe(self.res);
+});
+...
+```
+
 
 // TODO link to Fotorama
 Possible use cases:
