@@ -185,6 +185,6 @@ Also the settings Do_Cache, Picture_Service_Cache_Path desribed above apply here
 
 
 #Credits
-* [Fotorama](http://fotorama.io/) (Gallery / carousel library)
+* [Fotorama](http://fotorama.io/) Gallery / carousel library
 * [Sharp](http://sharp.dimens.io/en/stable/) NodeJS image library
 * [MomentJS](http://momentjs.com/) A time/date library allowing i18n
