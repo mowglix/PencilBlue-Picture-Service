@@ -1,15 +1,3 @@
-/*
-TODO: 
-
-- Readme
-
-- hand in gallery change
-
-- avoid empty gallery tag if no media
-- allow for videos
-- key navigation
-- improve pic upload
-*/
 
 module.exports = function PictureStreamModule(pb) {
     
