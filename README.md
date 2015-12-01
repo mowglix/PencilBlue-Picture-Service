@@ -119,7 +119,7 @@ A new route is added that allows image manipulations. Example:
 
 A media link can be transformed to this route by simply replacing "/media/ by "/PicService/".
 
-In addition this route can contain additional request parameters encoded in the URL. Parameters are not passed over as part of the query (behind ?) in order to allow browsers and proxies to cache those files. Parameters are separated by an underscore character (_).
+In addition this route can contain additional request parameters encoded in the URL. Parameters are not passed over as part of the query (behind ?) in order to allow browsers and proxies to cache those files. Parameters are separated by an underscore character (_). Example:
 
 > /PicService/2015/11/6bd30f4b-4034-4eaf-83e5-eb5d34f00bf4-1448798846040.jpg/@PAR_H64_W64_Qthumb
 
@@ -128,8 +128,8 @@ Request parameters:
 | Parameter        | Comment        |  
 | ------------- |---------------| 
 | @PAR     | Indicator that parameters follow, must be the last segment of the route |
-| H[Integer] | Target height. The value must be listed in the plusign setting "Valid_Width_List". If not, the value will be ignored (see "flooding attack" below) |
-| W[Integer] | Target width. The value must be listed in the plusign setting "Valid_height_List". If not, the value will be ignored (see "flooding attack" below)|
+| H[Integer] | Target height. The value must be listed in the plugin setting "Valid_Width_List". If not, the value will be ignored (see "disk flooding attack" below) |
+| W[Integer] | Target width. The value must be listed in the plugin setting "Valid_height_List". If not, the value will be ignored (see "disk flooding attack" below)|
 | Qthumb | If defined the image is returned with the  quality defined in Quality_Thumbnail. Otherwise the quality defined in Quality_Regular is used|
 
 
@@ -138,7 +138,7 @@ Request parameters:
 | Option        | Values        |  Comments |
 | ------------- |---------------| ----------|
 |  Picture Service Route Enabled     | true\|false      | If false, the route will return 404-errors |
-| Picture_Service_Cache_Path | pathname | base directory used for caching manipulated pictures. By default the os temp folder. Below this folder this plugin creaes it's subfolder called "pb_picture_cache". This subfolder can be removed anytime with no harm to the the application. |
+| Picture_Service_Cache_Path | pathname | base directory used for caching manipulated pictures. By default the os temp folder. Below this folder this plugin creates it's subfolder called "pb_picture_cache". This subfolder can be removed anytime with no harm to the the application. |
 | Do_Cache | true\|false | Default is true. Set to false, no caching is done. Pictures get recalculated with every request.|
 | Valid_Width_List | comma separated integers | List of allowed width parameters in image request URL (see "Disk flooding attacks" below) |
 | Valid_Hight_List | comma separated integers | List of allowed height parameters in image request URL (see "Disk flooding attacks" below) |
@@ -147,8 +147,8 @@ Also the settings Quality_Regular, Quality_Thumbnail, Max_Height, Max_Width desr
 
 ##Disk flooding attacks
 This project comes by default with a route that allows defining as part of the route the expected width and height of the image. If no countermeasures are taken, this would create a vulnurabilities:
-1. Adversaries could try to send in large target width / height values in order to crash the server.
-2. Adversaries could try to request a all possible none-crashing permutations of widht, height and width/height for every picture available to flood the cash folder and ultimately have the server run out of space.
+1. Adversaries could try to send in a large target width / height values in order to crash the server.
+2. Adversaries could try to request all possible none-crashing permutations of width, height and width/height for every picture available to flood the cash folder and ultimately have the server run out of space.
 
 In order to circumvent such attacks the "allowed" width and height values have to be predefined in the plugin settings (Valid_Width_List, Valid_Hight_List). If a width/height does not comply to those values it gets removed from the requested paramter list.
 
