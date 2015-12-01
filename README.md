@@ -120,7 +120,7 @@ Rrequest parameters:
 | @PAR     | Indicator that parameters follow, must be the last segment of the route |
 | H[Integer] | Target height. The value must be listed in the plusign setting "Valid_Width_List". If not, the value will be ignored (see "flooding attack" below) |
 | W[Integer] | Target width. The value must be listed in the plusign setting "Valid_height_List". If not, the value will be ignored (see "flooding attack" below)|
-
+| Qthumb | If defined the image is returned with the  quality defined in Quality_Thumbnail. Otherwise the quality defined in Quality_Regular is used|
 
 
 ##Plugin settings
