@@ -52,6 +52,11 @@ pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, inf
 ...
 ```
 
+#Installation
+
+1. Checkout or download this project
+2. Place it in your plugin-folder named "PencilBlue-Picture-Service"
+
 
 # The gallery templates
 
@@ -156,10 +161,6 @@ In order to circumvent such attacks the "allowed" width and height values have t
 - Default cache directory is the the os temp-directory
 - template choosing
 
-##Installation
-
-1. Checkout or download this project
-2. Place it in your plugin-folder named "PencilBlue-Picture-Service"
 
 ##Usage / Examples
 
