@@ -113,7 +113,7 @@ All timestamps are being translated to the browsers prefered language using Mome
 
 ##Route Format
 
-A new route is added that allows image manipulations. The route
+A new route is added that allows image manipulations. Example:
 
 > /PicService/2015/11/6bd30f4b-4034-4eaf-83e5-eb5d34f00bf4-1448798846040.jpg
 
