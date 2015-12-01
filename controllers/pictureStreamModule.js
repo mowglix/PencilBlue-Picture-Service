@@ -6,8 +6,9 @@ TODO:
 - hand in gallery change
 
 - avoid empty gallery tag if no media
-- fix the date form of article entries
 - allow for videos
+- key navigation
+- improve pic upload
 */
 
 module.exports = function PictureStreamModule(pb) {
@@ -44,20 +45,18 @@ module.exports = function PictureStreamModule(pb) {
         var i=1; // not because first element is @PAR
 
         // Patten ends with: /@PAR_Q20_W300
-        url_parts.pathname = (url_parts.pathname.slice(-1) === '/' ? url_parts.pathname.substring(0,url_parts.pathname.length-1) : url_parts.pathname );
-        var pathElements = url_parts.pathname.split("/");
+        origPathName = (url_parts.pathname.slice(-1) === '/' ? url_parts.pathname.substring(0,url_parts.pathname.length-1) : url_parts.pathname );
+        var pathElements = origPathName.split("/");
 
         if(pathElements[pathElements.length-1].substring(0,5) === '@PAR_') {
+            origPathName = origPathName.substring(0,origPathName.length - pathElements[pathElements.length-1].length-1);
             queryElements = pathElements[pathElements.length-1].split("_");
 
             for(; i < queryElements.length; i++) {
-                key = queryqueryElements[i].substring(0,1).toLowerCase();
-                value = queryqueryElements[i].substring(1);
+                key = queryElements[i].substring(0,1).toLowerCase();
+                value = queryElements[i].substring(1);
                 query[key] = value;
             }
-        }
-        else {
-            origPathName = url_parts.pathname;
         }
 
         mediaPath = "/media/" + origPathName.substring(URL_prefix.length);
