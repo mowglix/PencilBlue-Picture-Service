@@ -119,7 +119,7 @@ A new route is added that allows image manipulations. Example:
 
 A media link can be transformed to this route by simply replacing "/media/ by "/PicService/".
 
-In addition this route can contain additional request parameters encoded in the URL. Parameters are not passed over as part of the query (behind ?) in order to allow browsers and routers to cache those files. Parameters are separated by an underscore character (_).
+In addition this route can contain additional request parameters encoded in the URL. Parameters are not passed over as part of the query (behind ?) in order to allow browsers and proxies to cache those files. Parameters are separated by an underscore character (_).
 
 > /PicService/2015/11/6bd30f4b-4034-4eaf-83e5-eb5d34f00bf4-1448798846040.jpg/@PAR_H64_W64_Qthumb
 
