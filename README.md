@@ -62,11 +62,11 @@ pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, inf
 - Adds localization features for displaying dates and time
 - The gallery can be disabled from settings
 
-#Template placeholders:
+##Template placeholders:
 | Placeholder   |  Comments |
 | ------------- | ----------|
 |article_timestamp_L   | Example: 2015-11-30|
-|article_timestamp_l   | Example: 2015-11-30|
+|article_t#imestamp_l   | Example: 2015-11-30|
 |article_timestamp_LL   | Example: 30 November, 2015|
 |article_timestamp_ll   | Example: 30 Nov, 2015|
 |article_timestamp_LLL   | Example: 30 November, 2015 10:57 PM|
@@ -75,13 +75,19 @@ pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, inf
 |article_timestamp_llll   | Example: Mon, 30 Nov, 2015 10:57 PM        |
 |article_timestamp_LT   | Example: 8:30 PM|
 |article_timestamp_LTS   | Example: 8:30:25 PM|
+|tmp_elements=article=gallery|Insert the gallery here|
+|article_gallery_elements|put here the list of single images|
+|article_gallery_elem_url|The URL to a media file|
+|article_gallery_elem_caption|The caption of a media file|
+|article_gallery_elem_name|The caption of a media file|
+
 
 All timestamps are being translated to the browsers prefered language using MomentJS. Please refer to their [start page](http://momentjs.com/) to find examples of how these formats behave in other languages.
 
-#Plugin settings
+##Plugin settings
 | Option        | Values        |  Comments |
 | ------------- |---------------| ----------|
-| Gallery_Enabled | true|false |   |
+| Gallery_Enabled | true\|false | If false, the original PencilBlue content-view-loader is used  |
 | Max_Width      | integer      | if neither target witdh nor height is provided, than images are not returned wider than defined  |
 | Max_Height      | integer      | if neither target witdh nor height is provided, than images are not returned wider than defined (If Max_Width is defined, this setting will be ignored)   |
 | Quality_Regular      | 1-100      | The JPEG / WebP picture / compression quality of regular pictures (none-thumbnails)| 
@@ -89,19 +95,36 @@ All timestamps are being translated to the browsers prefered language using Mome
 
 
 
-#The gallery templates
+#The picture service route
 
-## Route Format
+##Features
+| Option        | Values        |  Comments |
+| ------------- |---------------| ----------|
+|  Picture Service Route Enabled     | true\|false      | If false, the route will return 404-errors |
+| Picture_Service_Cache_Path | pathname | base directory used for caching manipulated pictures. By default the os temp folder. Below this folder this plugin creaes it's subfolder called "pb_picture_cache". This subfolder can be removed anytime with no harm to the the application. |
+| Do_Cache | true\|false | Default is true. Set to false, no caching is done. Pictures get recalculated with every request.|
+| Valid_Width_List | comma separated integers | List of allowed width parameters in image request URL (see "Disk flooding attacks" below) |
+| Valid_Hight_List | comma separated integers | List of allowed height parameters in image request URL (see "Disk flooding attacks" below) |
+Also the settings Quality_Regular, Quality_Thumbnail, Max_Height, Max_Width desribed above apply here.
 
 
-#Configuration
+##Route Format
 
 
+##Plugin settings
 
-The service
-------------
 
-Features
+##Disk flooding attacks
+This project comes by default with a route that allows defining as part of the route the expected with and height of the image. If no countermeasures are taken, this would create a vulnurabilities:
+1. Adversaries could try to send in large target width / height values in order to crash the server.
+2. Adversaries could try to request a all possible none-crashing permutations of widht, height and width/height for every picture available to flood the cash folder and ultimately have the server run out of space.
+
+In order to circumvent such attacks the "allowed" width and height values have to be predefined in the plugin settings (Valid_Width_List, Valid_Hight_List). If a width/height does not comply to those values it gets removed from the requested paramter list.
+
+
+#The service
+
+##Features
 - Picture can be proportionally scaled by defining the target length
 - Picture can be proportionally scaled by defining the target width
 - Picture can be proportionally scaled by defining the target length and width. The picture is getting automatically croped if needed to its center.
@@ -112,15 +135,12 @@ Features
 - Default cache directory is the the os temp-directory
 - template choosing
 
-Installation
-------------
+##Installation
 
 1. Checkout or download this project
 2. Place it in your plugin-folder named "PencilBlue-Picture-Service"
 
-
-Usage / Examples
-----------------
+##Usage / Examples
 
 // TODO add screenshots and source code
 
@@ -133,29 +153,13 @@ proportionally scaled by defining the target width
 proportionally scaled by defining the target length and width and crop to center
 
 
-Define quality
+##Define quality
 
 
 
-Configuration
+##Plugin settings
 
-Picture_Service_Cache_Path: base directory used for caching manipulated pictures. By default the os temp folder. Below this folder this plugin creaes it's subfolder called "pb_picture_cache". This subfolder can be removed anytime with no harm to the the application.
-
-Do_Cache: true/false - Default is true. Set to false, no caching is done. Pictures get recalculated with every request.
-
-Valid_Width_List: Comma separted list of allowed width parameters in image request URL (see "Disk flooding attacks" below)
-Valid_Hight_List: Comma separted list of allowed height parameters in image request URL (see "Disk flooding attacks" below)
-
-Disk flooding attacks
-This project comes by default with a route that allows defining as part of the route the expected with and height of the image. If no countermeasures are taken, this would create a vulnurabilities:
-1. Adversaries could try to send in large target width / height values in order to crash the server.
-2. Adversaries could try to request a all possible none-crashing permutations of widht, height and width/height for every picture available to flood the cash folder and ultimately have the server run out of space.
-
-In order to circumvent such attacks the "allowed" width and height values have to be predefined in the plugin settings (Valid_Width_List, Valid_Hight_List). If a width/height does not comply to those values it gets removed from the requested paramter list.
-
-
-
-
+Also the settings Do_Cache, Picture_Service_Cache_Path desribed above apply here.
 
 
 #Credits
