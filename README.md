@@ -105,7 +105,11 @@ All timestamps are being translated to the browsers prefered language using Mome
 #The picture service route
 
 ##Features
-
+* proportionally scaled by defining the target length
+* proportionally scaled by defining the target width
+* proportionally scaled by defining the target length and width and crop to center
+* scale picture to a max width or height in order to avoid oversized images
+* Define the quality of images
 
 ##Route Format
 
@@ -155,35 +159,46 @@ In order to circumvent such attacks the "allowed" width and height values have t
 - Picture can be proportionally scaled by defining the target length
 - Picture can be proportionally scaled by defining the target width
 - Picture can be proportionally scaled by defining the target length and width. The picture is getting automatically croped if needed to its center.
-- Alternative to defining length/widht either a max-length or max-width can be defined. This can improve load times by limiting oversized picture to 'reasonable' dimensions
-- The output picture quality can be defined (JPEG, WebP, )
+- Alternative to defining widht/height either a max-length or max-width can be defined. This can improve load times by limiting oversized picture to 'reasonable' dimensions
+- The output picture quality can be defined (JPEG, WebP)
 - Resized pictures are being cached to reduce processor load
 - Caching can be disabled (enabled by default)
 - Default cache directory is the the os temp-directory
 - template choosing
 
 
-##Usage / Examples
+##Usage
 
-// TODO add screenshots and source code
+### PictureService
+```javascript
+...
+var PictureService = pb.PluginService.getService('PictureService', 'PencilBlue-Picture-Service');
+var mediaId = '/media/2015/11/ceb046e8-3977-4ca2-9d5a-4ffb26891d4f-1448798830584.jpg';
+var expectedSize = {
+    width: 128,
+    height: 128,
+    maxWidth: undefined,
+    maxHeight: undefined,
+    quality: 60
+};
+pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, info){
+    ...
+});
+...
+```
+See the example above for a more verbose version.
 
-proportionally scaled by defining the target length
-
-
-proportionally scaled by defining the target width
-
-
-proportionally scaled by defining the target length and width and crop to center
-
-
-##Define quality
-
-
+### ContentViewLoader (modified)
+In addition the plugin changes the behaviour of the ContentViewLoader responsible for displaying articles in such a way, that the template to use can be set. This Class is used for instance in PencilBlues blog.js controller. 
+```javascript
+...
+    var contentViewLoader = new pb.ContentViewLoader(context, 'elements/article');
+...
+```
 
 ##Plugin settings
 
 Also the settings Do_Cache, Picture_Service_Cache_Path desribed above apply here.
-
 
 #Credits
 * [Fotorama](http://fotorama.io/) Gallery / carousel library
