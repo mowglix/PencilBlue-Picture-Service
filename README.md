@@ -64,10 +64,11 @@ pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, inf
 
 ##Features
 * Comes with the [Fotorama](http://fotorama.io/) gallery library 
-- Gallery can be highly customized
-- Gallery can be replaced by altering the templates
-- Adds localization features for displaying dates and time
-- The gallery can be disabled from settings
+* Gallery can be highly customized
+* Gallery can be replaced by altering the templates
+* Adds localization features for displaying dates and time
+* The gallery can be disabled from settings
+* The gallery can also visualize Youtube and Vimeo media links
 
 ##Template placeholders:
 | Placeholder   |  Comments |
