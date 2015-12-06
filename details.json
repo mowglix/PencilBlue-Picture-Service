@@ -37,7 +37,7 @@
         "value": ""
     },{
         "name": "Valid_Width_List",
-        "value": "64, 128 "
+        "value": "64, 128, 480, 960"
     },{
         "name": "Valid_Hight_List",
         "value": "64, 128 "

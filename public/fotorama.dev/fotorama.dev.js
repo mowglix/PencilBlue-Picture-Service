@@ -1,7 +1,7 @@
 /*!
- * Fotorama 4.6.4 | http://fotorama.io/license/
+ * Fotorama 4.6.4a | http://fotorama.io/license/
  */
-fotoramaVersion = '4.6.4';
+var fotoramaVersion = '4.6.4a';
 (function (window, document, location, $, undefined) {
   "use strict";
 var _fotoramaClass = 'fotorama',
@@ -1187,6 +1187,7 @@ function getDataFromHtml ($el) {
     var $child = $img.children('img').eq(0),
         _imgHref = $img.attr('href'),
         _imgSrc = $img.attr('src'),
+        _imgSrcset = $img.attr('srcset'),
         _thumbSrc = $child.attr('src'),
         _video = imgData.video,
         video = checkVideo ? findVideoId(_imgHref, _video === true) : false;
@@ -1200,7 +1201,8 @@ function getDataFromHtml ($el) {
     getDimensions($img, $child, $.extend(imgData, {
       video: video,
       img: imgData.img || _imgHref || _imgSrc || _thumbSrc,
-      thumb: imgData.thumb || _thumbSrc || _imgSrc || _imgHref
+      thumb: imgData.thumb || _thumbSrc || _imgSrc || _imgHref,
+      srcset: _imgSrcset
     }));
   }
 
@@ -2347,11 +2349,9 @@ jQuery.Fotorama = function ($fotorama, opts) {
   }
 
   function setMeasures (width, height, ratio, index, type) {
-    console.log('measuresSetFLAG', measuresSetFLAG);
-    console.log('measuresSetFLAG', type);
     if (type !== 'navThumb' && (!measuresSetFLAG || (measuresSetFLAG === '*' && index === startIndex))) {
 
-      console.log('setMeasures', index, opts.width, opts.height);
+      //////console.log('setMeasures', index, opts.width, opts.height);
 
       width = measureIsValid(opts.width) || measureIsValid(width) || WIDTH;
       height = measureIsValid(opts.height) || measureIsValid(height) || HEIGHT;
@@ -2428,7 +2428,9 @@ jQuery.Fotorama = function ($fotorama, opts) {
       }
 
       function loaded () {
-        console.log('loaded: ' + src);
+        //////console.log('loaded: ' + src);
+
+        ////console.log('$.Fotorama.measures[src]', $.Fotorama.measures[src]);
 
         $.Fotorama.measures[src] = imgData.measures = $.Fotorama.measures[src] || {
           width: img.width,
@@ -2498,6 +2500,9 @@ jQuery.Fotorama = function ($fotorama, opts) {
 
       frameData.state = '';
       img.src = src;
+      if (dataFrame.srcset) {
+        img.srcset = dataFrame.srcset;
+      }      
     });
   }
 
@@ -3178,12 +3183,11 @@ jQuery.Fotorama = function ($fotorama, opts) {
         ratio = measures.ratio,
         windowHeight = $WINDOW.height() - (o_nav ? $nav.height() : 0);
 
-    console.log("width to set is: " + width);
     if (measureIsValid(width)) {
       $wrap
           .addClass(wrapOnlyActiveClass)
           .css({width: width, minWidth: measures.minwidth || 0, maxWidth: measures.maxwidth || MAX_WIDTH});
-      console.log("width set to: " + width);
+
       width = measures.W = measures.w = $wrap.width();
       measures.nw = o_nav && numberFromWhatever(opts.navwidth, width) || width;
 

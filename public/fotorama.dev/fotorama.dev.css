@@ -1,5 +1,5 @@
 /*!
- * Fotorama 4.6.4 | http://fotorama.io/license/
+ * Fotorama 4.6.4a | http://fotorama.io/license/
  */
 .fotorama__nav__frame:focus .fotorama__dot:after, .fotorama__nav__frame:focus .fotorama__thumb:after, .fotorama__fullscreen-icon:focus:after,
 .fotorama__arr:focus:after, .fotorama__stage__shaft, .fotorama__stage__frame, .fotorama__img, .fotorama__html, .fotorama__video iframe {
@@ -63,7 +63,7 @@
 .fotorama__arr:focus:after {
   content: '';
   border-radius: inherit;
-  background-color: rgba(0, 175, 234, 0.5); }
+  background-color: rgba(0, 176, 235, 0.5); }
 
 .fotorama__wrap--video .fotorama__stage__shaft,
 .fotorama__wrap--video .fotorama__stage,
@@ -132,8 +132,8 @@
       background-size: 96px 160px; } }
 
 .fotorama__thumb {
-  background-color: #7f7f7f;
-  background-color: rgba(127, 127, 127, 0.2); }
+  background-color: gray;
+  background-color: rgba(128, 128, 128, 0.2); }
 
 @media print {
   .fotorama__arr, .fotorama__fullscreen-icon, .fotorama__video-play, .fotorama__video-close, .fotorama__thumb-border {
@@ -287,7 +287,7 @@
   top: 12px;
   left: 6px;
   border-radius: 6px;
-  border: 1px solid #7f7f7f; }
+  border: 1px solid gray; }
   .fotorama__nav__frame:focus .fotorama__dot:after {
     padding: 1px;
     top: -1px;
@@ -315,7 +315,7 @@
   top: 0;
   left: 0;
   border-style: solid;
-  border-color: #00afea;
+  border-color: #00b0eb;
   background-image: linear-gradient(to bottom right, rgba(255, 255, 255, 0.25), rgba(64, 64, 64, 0.1)); }
 
 .fotorama__caption {
@@ -351,7 +351,6 @@
   0% {
     -webkit-transform: rotate(0);
     transform: rotate(0); }
-
   100% {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg); } }
@@ -360,7 +359,6 @@
   0% {
     -webkit-transform: rotate(0);
     transform: rotate(0); }
-
   100% {
     -webkit-transform: rotate(360deg);
     transform: rotate(360deg); } }
@@ -563,3 +561,5 @@
 .fotorama__wrap--fade .fotorama__stage:before,
 .fotorama__wrap--fade .fotorama__stage:after {
   display: none; }
+
+/*# sourceMappingURL=fotorama.css.map */
