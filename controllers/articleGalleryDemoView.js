@@ -86,7 +86,7 @@
 				galleryService.render(content, callback);
 			});
 
-			ats.load('galleryDemo/article', cb);
+			ats.load('gallery/article', cb);
 		};
 
 		articleGalleryDemoController.prototype.gatherData = function(cb) {

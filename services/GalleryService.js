@@ -53,7 +53,7 @@
 					gts.registerLocal('article_gallery_elements', function(flag, callback) {
 						self.renderGalleryElements(mediaDescriptors, callback);
 					});
-					gts.load('galleryDemo/article/gallery', function(err, content) {
+					gts.load('gallery/article/gallery', function(err, content) {
 						cb(err, new pb.TemplateValue(content, false));
 					});
 				}
@@ -84,15 +84,15 @@
 			if (descriptor.media_type === 'image') {
 				imagePath = url_prefix + descriptor.location.substring(7);
 				gts.registerLocal('article_gallery_elem_url', imagePath);
-				gts.load('galleryDemo/article/gallery_element', cb);
+				gts.load('gallery/article/gallery_element', cb);
 			} else if (descriptor.media_type === 'youtube') {
 				imagePath = "https://youtube.com/watch?v=" + descriptor.location;
 				gts.registerLocal('article_gallery_elem_url', imagePath);
-				gts.load('galleryDemo/article/gallery_element_video', cb);
+				gts.load('gallery/article/gallery_element_video', cb);
 			} else if (descriptor.media_type === 'vimeo') {
 				imagePath = "http://vimeo.com/" + descriptor.location;
 				gts.registerLocal('article_gallery_elem_url', imagePath);
-				gts.load('galleryDemo/article/gallery_element_video', cb);
+				gts.load('gallery/article/gallery_element_video', cb);
 			} else
 				cb(null, '');
 		};
