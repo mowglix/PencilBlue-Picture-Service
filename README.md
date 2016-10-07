@@ -5,11 +5,11 @@ This project is a plugin for the CMS [PencilBlue](https://pencilblue.org/).
 It provides two main functionalities:
 
 * a PencilBlue-service that allows to deliver resized pictures that are stored as "media" and which is designed to be reused in other projects
-* optionally an extended "article" visualization that shows a picture gallery below the actual article
+* optionally an extended "gallery" visualization that can be used for a custom media view
 
 There are mainly 3 ways how this service can be used.
 
-1. Have your article view enriched by a gallery showing all your media (this can be disabled)
+1. Use the GalleryService to render an HTML-Gallery using fotorama
 2. Use a dedicated media route, that allows resizing pictures to a target format by passing on parameters (this can be disabled)
 3. Use the picture-resize-service programatically for your own project.
 
@@ -58,7 +58,7 @@ pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, inf
 
 1. Checkout or download this project
 2. Place it in your plugin-folder named "PencilBlue-Picture-Service"
-
+3. Follow the installation instructions for [node-sharp](http://sharp.readthedocs.io/en/stable/install/). In a nutshell node-gyp and compilation capabilities are required.
 
 # The gallery templates
 
@@ -66,36 +66,35 @@ pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, inf
 * Comes with the [Fotorama](http://fotorama.io/) gallery library 
 * Gallery can be highly customized
 * Gallery can be replaced by altering the templates
-* Adds localization features for displaying dates and time
 * The gallery can be disabled from settings
 * The gallery can also visualize Youtube and Vimeo media links
 
-##Template placeholders:
-| Placeholder   |  Comments |
-| ------------- | ----------|
-|article_timestamp_L   | Example: 2015-11-30|
-|article_t#imestamp_l   | Example: 2015-11-30|
-|article_timestamp_LL   | Example: 30 November, 2015|
-|article_timestamp_ll   | Example: 30 Nov, 2015|
-|article_timestamp_LLL   | Example: 30 November, 2015 10:57 PM|
-|article_timestamp_lll   | Example: 30 Nov, 2015 10:57 PM|
-|article_timestamp_LLLL   | Example: Monday, 30 November, 2015 10:57 PM|
-|article_timestamp_llll   | Example: Mon, 30 Nov, 2015 10:57 PM        |
-|article_timestamp_LT   | Example: 8:30 PM|
-|article_timestamp_LTS   | Example: 8:30:25 PM|
-|tmp_elements=article=gallery|Insert the gallery here|
-|article_gallery_elements|put here the list of single images|
-|article_gallery_elem_url|The URL to a media file|
-|article_gallery_elem_caption|The caption of a media file|
-|article_gallery_elem_name|The caption of a media file|
+##Usage
 
+To use the Gallery service, have a look at the /galleryDemo (see "Plugin settings" to enalbe the route).
 
-All timestamps are being translated to the browsers prefered language using MomentJS. Please refer to their [start page](http://momentjs.com/) to find examples of how these formats behave in other languages. These placeholders will ignore PencilBlues system settings.
+```javascript
+// get instance of galleryService
+var galleryService = new (pb.PluginService.getService('GalleryService', 'PencilBlue-Picture-Service'))(this);
+//...
+// Use the service
+	galleryService.render(content, callback);
+```
+
+In your header you need:
+```html
+        <link href="/public/PencilBlue-Picture-Service/fotorama/fotorama.css" rel="stylesheet"> 
+```
+
+In your footer you need:
+```html
+        <script src="/public/PencilBlue-Picture-Service/fotorama/fotorama.js"></script>
+```
 
 ##Plugin settings
 | Option        | Values        |  Comments |
 | ------------- |---------------| ----------|
-| Gallery_Enabled | true\|false | If false, the original PencilBlue content-view-loader is used  |
+| Article_Demo_Route_Enabled | true\|false | If true, the top 10 articles are displayed under /galleryDemo with Fotorama, default false |
 | Max_Width      | integer      | if neither target witdh nor height is provided, than images are not returned wider than defined  |
 | Max_Height      | integer      | if neither target witdh nor height is provided, than images are not returned wider than defined (If Max_Width is defined, this setting will be ignored)   |
 | Quality_Regular      | 1-100      | The JPEG / WebP picture / compression quality of regular pictures (none-thumbnails)| 
@@ -189,17 +188,6 @@ pictureService.getPictureStream(mediaId, expectedSize, function(err, stream, inf
 ```
 See the example above for a more verbose version.
 
-### ContentViewLoader (modified)
-In addition the plugin changes the behaviour of the ContentViewLoader responsible for displaying articles in such a way, that the template to use can be set. This Class is used for instance in PencilBlues blog.js controller. 
-```javascript
-...
-    var contentViewLoader = new pb.ContentViewLoader(context, 'elements/article');
-...
-```
-
-##Plugin settings
-
-Also the settings Do_Cache, Picture_Service_Cache_Path desribed above apply here.
 
 #Credits
 * [Fotorama](http://fotorama.io/) Gallery / carousel library
