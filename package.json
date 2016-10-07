@@ -12,11 +12,10 @@
     "sinon": "^1.12.2",
     "rewire": "^2.5.0",
     "string-stream": "^0.0.7",
-    "base64-stream": "^0.1.3",
-    "stream-buffer": "^3.0.0"
+    "base64-stream": "^0.1.3"
   },
   "dependencies": {
-    "sharp": "^0.12.0",
+    "sharp": "^0.16.0",
     "stream-buffers": "^3.0.0",
     "uid": "^0.0.2",
     "moment": "^2.10.6"

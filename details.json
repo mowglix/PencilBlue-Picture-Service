@@ -3,7 +3,7 @@
     "name": "PencilBlue Picture Service",
     "description": "Service for providing PencilBlue Media-Picture files in a resized from using a caching mechanism. For instance for providing fast loading thumbnails.",
     "version": "0.1.0",
-    "pb_version": "0.4.x",
+    "pb_version": ">=0.7.x <1.x",
     "author": {
         "name": "Daniel Keller",
         "email": "jobe451@gmail.org",
@@ -18,11 +18,11 @@
         "name": "Do_Cache",
         "value": "true"
     },{
-        "name": "Gallery_Enabled",
-        "value": "true"
-    },{
         "name": "Picture_Service_Route_Enabled",
         "value": "true"
+    },{
+        "name": "Article_Demo_Route_Enabled",
+        "value": "false"
     },{
         "name": "Max_Width",
         "value": ""
@@ -56,7 +56,9 @@
         "content_templates": []
     },
     "dependencies": {
-        "sharp": "0.12.0",
-        "uid": "0.0.2"
-    }
+        "sharp": "^0.16.0",
+        "stream-buffers": "^3.0.0",
+        "uid": "^0.0.2",
+        "moment": "^2.10.6"
+   }
 }
